@@ -33,7 +33,7 @@ Follow these steps to set up and run the project locally. Ensure you have **Node
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Adiii581/speed-v3.git
-cd speed-project-v2
+cd Speed
 ```
 
 ### 2. Run the Backend Server
@@ -87,4 +87,5 @@ For questions, feedback, or contributions, please reach out by connecting with m
 
 
 *Built with 💻 by Aditya Chhabria*
+
 
