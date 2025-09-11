@@ -387,7 +387,7 @@ export default function App() {
                 <div className="text-green-800 text-xl font-semibold">Transfer completed successfully!</div>
                 <div className="text-green-600 text-base">Your files are ready to download</div>
               </div>
-              <div className="flex justify-center md:justify-end pr-4 md:pr-6">
+              <div className="text-center md:justify-end pr-4 md:pr-6">
                 <Button 
                   onClick={handleDownload}
                   className="bg-green-600 hover:bg-green-700 text-white h-16 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
