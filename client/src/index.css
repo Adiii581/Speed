@@ -803,7 +803,7 @@
   }
 
   .size-8 {
-    width: calc(var(--spacing) * 56);
+    width: calc(var(--spacing) * 54);
     height: calc(var(--spacing) * 8);
   }
 
