@@ -390,9 +390,9 @@ export default function App() {
               <div className="flex justify-center md:justify-end pr-4 md:pr-6">
                 <Button 
                   onClick={handleDownload}
-                  className="bg-green-600 hover:bg-green-700 text-white h-24 px-16 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  className="bg-green-600 hover:bg-green-700 text-white h-16 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
-                  <Download size={32} />
+                  <Download className="size-8" />
                 </Button>
               </div>
             </div>

@@ -803,7 +803,7 @@
   }
 
   .size-8 {
-    width: calc(var(--spacing) * 8);
+    width: calc(var(--spacing) * 64);
     height: calc(var(--spacing) * 8);
   }
 
@@ -815,6 +815,11 @@
   .size-10 {
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
+  }
+  
+  .size-15 {
+    width: calc(var(--spacing) * 15);
+    height: calc(var(--spacing) * 15);
   }
 
   .size-full {
@@ -868,6 +873,10 @@
 
   .h-18 {
     height: calc(var(--spacing) * 18);
+  }
+
+  .h-20 {
+    height: calc(var(--spacing) * 20);
   }
 
   .h-\[1\.15rem\] {
@@ -1780,6 +1789,14 @@
 
   .px-10 {
     padding-inline: calc(var(--spacing) * 10);
+  }
+
+  .px-16 {
+    padding-inline: calc(var(--spacing) * 16);
+  }
+
+  .px-28 {
+    padding-inline: calc(var(--spacing) * 28);
   }
 
   .py-0\.5 {
