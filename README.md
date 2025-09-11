@@ -32,7 +32,7 @@ Follow these steps to set up and run the project locally. Ensure you have **Node
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YourUsername/speed-v3.git
+git clone https://github.com/Adiii581/speed-v3.git
 cd speed-project-v2
 ```
 
@@ -56,7 +56,7 @@ npm install
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
+The application will be available at `http://localhost:3000` (or another port if 3000 is in use).
 
 ---
 
@@ -87,3 +87,4 @@ For questions, feedback, or contributions, please reach out by connecting with m
 
 
 *Built with 💻 by Aditya Chhabria*
+
