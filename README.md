@@ -32,8 +32,8 @@ Follow these steps to set up and run the project locally. Ensure you have **Node
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YourUsername/speed-project.git
-cd speed-project
+git clone https://github.com/YourUsername/speed-v3.git
+cd speed-project-v2
 ```
 
 ### 2. Run the Backend Server
@@ -81,8 +81,9 @@ The application will be available at `http://localhost:5173` (or another port if
 
 ## 📬 Contact
 
-For questions, feedback, or contributions, please reach out via [GitHub Issues](https://github.com/YourUsername/speed-project/issues) or connect with me on [LinkedIn](https://linkedin.com/in/yourusername).
+For questions, feedback, or contributions, please reach out by connecting with me on [LinkedIn](https://linkedin.com/in/aditya-chhabria123).
 
 ---
 
-*Built with 💻 and ☕ by [Your Name]*
+
+*Built with 💻 by Aditya Chhabria*
