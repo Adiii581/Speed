@@ -5,6 +5,7 @@ import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Progress } from './components/ui/progress';
 import { Label } from './components/ui/label';
+import { Alert, AlertDescription } from './components/ui/alert';
 import { Download, Send, Upload, Copy, Check } from 'lucide-react';
 import AnimatedBackground from './components/AnimatedBackground';
 
@@ -35,36 +36,18 @@ export default function App() {
     };
 
     const customId = generateSimpleId();
+    
+    // Set our custom room ID immediately
     setRoomId(customId);
-
-    // TURN server config for cross-network/mobile support
+    
     const peer = new Peer(customId, {
-      host: 'speed-project-v2.onrender.com',
-      path: '/myapp',
-      secure: true,
-      config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          {
-            urls: "turn:openrelay.metered.ca:80",
-            username: "openrelayproject",
-            credential: "openrelayproject"
-          },
-          {
-            urls: "turn:openrelay.metered.ca:443",
-            username: "openrelayproject",
-            credential: "openrelayproject"
-          },
-          {
-            urls: "turn:openrelay.metered.ca:443?transport=tcp",
-            username: "openrelayproject",
-            credential: "openrelayproject"
-          }
-        ]
-      }
-    });
+      host: 'speed-project-v2.onrender.com',
+      path: '/myapp',
+      secure: true
+    });
 
     peer.on('open', (id) => {
+      // Verify our custom ID was accepted, otherwise use what PeerJS gave us
       if (id !== customId) {
         console.warn('PeerJS overrode our custom ID:', customId, '-> ', id);
         setRoomId(id);
@@ -75,49 +58,16 @@ export default function App() {
     peer.on('connection', (conn) => {
       setStatus('Peer connected! Receiving file(s)...');
       setIsTransferring(true);
-
+      
       conn.on('data', (data: any) => {
-        // Debug: print all received data
-        console.log('Received data:', data);
-
-        // Simple string test (debug)
-        if (typeof data === 'string') {
-          alert('Received string: ' + data);
-          setStatus('Test string received: ' + data);
-          setIsTransferring(false);
-          setTransferComplete(false);
-          return;
-        }
-
-        // Expected file object
-        if (data && data.file && data.name && data.type) {
-          const blob = new Blob([data.file], { type: data.type });
-          setReceivedFileName(data.name);
-          setDownloadUrl(URL.createObjectURL(blob));
-          setStatus('Files received successfully');
-          setIsTransferring(false);
-          setTransferComplete(true);
-          setTransferProgress(100);
-          return;
-        }
-
-        // Raw ArrayBuffer fallback
-        if (data instanceof ArrayBuffer) {
-          const blob = new Blob([data]);
-          setReceivedFileName('received-file.txt');
-          setDownloadUrl(URL.createObjectURL(blob));
-          setStatus('Files received successfully (raw buffer)');
-          setIsTransferring(false);
-          setTransferComplete(true);
-          setTransferProgress(100);
-          return;
-        }
-
-        // Unknown format
-        setStatus('Unknown data format received');
+        const { file, name, type } = data;
+        const blob = new Blob([file as ArrayBuffer], { type: type });
+        setReceivedFileName(name);
+        setDownloadUrl(URL.createObjectURL(blob));
+        setStatus('Files received successfully');
         setIsTransferring(false);
-        setTransferComplete(false);
-        console.warn('Unknown data received:', data);
+        setTransferComplete(true);
+        setTransferProgress(100);
       });
     });
 
@@ -133,6 +83,7 @@ export default function App() {
   // Auto-download effect for Enter key transfers
   useEffect(() => {
     if (transferComplete && downloadUrl && autoDownload) {
+      // Small delay to let the UI update, then auto-download
       const timer = setTimeout(() => {
         handleDownload();
       }, 500);
@@ -165,12 +116,13 @@ export default function App() {
     if (receiverId === roomId) {
       setStatus("Processing local file(s)...");
       setIsTransferring(true);
-
+      
+      // Simulate progress for local transfer
       let progress = 0;
       const interval = setInterval(() => {
         progress += 20;
         setTransferProgress(progress);
-
+        
         if (progress >= 100) {
           clearInterval(interval);
           const blob = new Blob([fileToSend], { type: fileToSend.type });
@@ -194,13 +146,13 @@ export default function App() {
       setStatus(`Sending: ${fileToSend.name}`);
       setIsTransferring(true);
       setTransferProgress(0);
-
-      // Simulate progress for UI feedback
+      
+      // Simulate progress
       let progress = 0;
       const progressInterval = setInterval(() => {
         progress += 10;
         setTransferProgress(progress);
-
+        
         if (progress >= 100) {
           clearInterval(progressInterval);
           setStatus('Files sent successfully');
@@ -228,23 +180,6 @@ export default function App() {
     });
   };
 
-  // Test string sender for debugging connection
-  const handleSendTestString = () => {
-    if (!receiverId.trim()) return;
-    const conn = peerInstance.current?.connect(receiverId);
-    if (!conn) {
-      setStatus('Error: Could not connect to peer ID.');
-      return;
-    }
-    conn.on('open', () => {
-      conn.send('Hello from sender!');
-      setStatus('Test string sent!');
-    });
-    conn.on('error', (err) => {
-      setStatus(`Connection error: ${err}`);
-    });
-  };
-
   const handleDownload = () => {
     if (downloadUrl) {
       const link = document.createElement('a');
@@ -253,7 +188,8 @@ export default function App() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
+      
+      // Reset state after download to show main UI again
       setTransferComplete(false);
       setTransferProgress(0);
       setDownloadUrl('');
@@ -291,11 +227,13 @@ export default function App() {
     }
   };
 
+
+
   return (
     <div className="min-h-screen bg-background relative">
       {/* Animated Background */}
       <AnimatedBackground />
-
+      
       {/* Header */}
       <div className="relative z-10 pt-8 pb-4 px-6">
         <h1 className="text-6xl font-bold text-foreground">Speed</h1>
@@ -311,12 +249,12 @@ export default function App() {
             </span>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light mb-4">
-            Speed lets you transfer files instantly between devices
+            Speed lets you transfer files instantly between devices 
             with just a room ID. No signup, no limits, no hassle.
           </p>
-          {status &&
-           !status.includes("Connected and ready") &&
-           !status.includes("Files sent successfully") &&
+          {status && 
+           !status.includes("Connected and ready") && 
+           !status.includes("Files sent successfully") && 
            !status.includes("Local transfer completed") &&
            !status.includes("file(s) selected.") && (
             <div className="max-w-2xl mx-auto">
@@ -341,7 +279,7 @@ export default function App() {
               readOnly
               className="flex-1 bg-white border border-gray-200 text-foreground h-16 text-sm md:text-lg px-4 md:px-6 rounded-xl font-mono tracking-wide break-all"
             />
-            <Button
+            <Button 
               onClick={handleCopy}
               disabled={!roomId}
               className="h-16 px-6 text-lg relative overflow-hidden rounded-xl disabled:opacity-50"
@@ -361,7 +299,7 @@ export default function App() {
         {!(transferComplete && downloadUrl) && (
         <div className="space-y-3 bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-white/50 shadow-lg">
           <Label htmlFor="selected-files" className="text-lg text-foreground">Selected Files</Label>
-          <div
+          <div 
             className="min-h-[160px] p-8 bg-white border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-orange-400 hover:bg-orange-50/50 transition-all duration-200 group"
             onClick={() => fileInputRef.current?.click()}
           >
@@ -425,7 +363,7 @@ export default function App() {
               className="flex-1 bg-white border border-gray-200 h-16 text-sm md:text-lg px-4 md:px-6 rounded-xl font-mono tracking-wide"
               disabled={isTransferring}
             />
-            <Button
+            <Button 
               onClick={handleSend}
               disabled={selectedFiles.length === 0 || !receiverId.trim() || isTransferring}
               className="h-16 px-6 relative overflow-hidden rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
@@ -436,18 +374,6 @@ export default function App() {
               }}
             >
               <Send size={24} />
-            </Button>
-            <Button
-              onClick={handleSendTestString}
-              disabled={!receiverId.trim() || isTransferring}
-              className="h-16 px-6 relative overflow-hidden rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
-              style={{
-                background: `linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)`,
-                color: 'white',
-                border: 'none'
-              }}
-            >
-              Send Test String
             </Button>
           </div>
         </div>
@@ -462,7 +388,7 @@ export default function App() {
                 <div className="text-green-600 text-base">Your files are ready to download</div>
               </div>
               <div className="flex justify-center md:justify-end pr-4 md:pr-6">
-                <Button
+                <Button 
                   onClick={handleDownload}
                   className="bg-green-600 hover:bg-green-700 text-white h-16 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
@@ -478,8 +404,8 @@ export default function App() {
         <div className="text-center mt-16 pt-8 border-t border-white/30">
           <p className="text-xl text-muted-foreground mb-6">Not sure where to start? Try these:</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              variant="outline"
+            <Button 
+              variant="outline" 
               className="bg-white/50 border-white/60 text-foreground hover:bg-white/70 rounded-full px-6 py-3 text-lg backdrop-blur-sm"
               onClick={() => {
                 const input = document.createElement('input');
@@ -495,8 +421,8 @@ export default function App() {
             >
               Share Photos
             </Button>
-            <Button
-              variant="outline"
+            <Button 
+              variant="outline" 
               className="bg-white/50 border-white/60 text-foreground hover:bg-white/70 rounded-full px-6 py-3 text-lg backdrop-blur-sm"
               onClick={() => {
                 const input = document.createElement('input');
@@ -512,8 +438,8 @@ export default function App() {
             >
               Send Documents
             </Button>
-            <Button
-              variant="outline"
+            <Button 
+              variant="outline" 
               className="bg-white/50 border-white/60 text-foreground hover:bg-white/70 rounded-full px-6 py-3 text-lg backdrop-blur-sm"
               onClick={() => {
                 const input = document.createElement('input');
