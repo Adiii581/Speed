@@ -24,11 +24,6 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const peerInstance = useRef<Peer | null>(null);
 
-  // At the top of your App component...
-  const [roomId, setRoomId] = useState<string>(''); // Start with an empty string
-
-  // ...
-
   useEffect(() => {
     // Generate a shorter, simpler room ID
     const generateSimpleId = () => {
