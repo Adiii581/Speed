@@ -24,7 +24,10 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const peerInstance = useRef<Peer | null>(null);
 
-  const [roomId, setRoomId] = useState<string>('');
+  // At the top of your App component...
+  const [roomId, setRoomId] = useState<string>(''); // Start with an empty string
+
+  // ...
 
   useEffect(() => {
     // Generate a shorter, simpler room ID
@@ -39,21 +42,19 @@ export default function App() {
 
     const customId = generateSimpleId();
     
-    // Set our custom room ID immediately
-    setRoomId(customId);
+    // DO NOT set the room ID here. We will wait for the server.
+    // REMOVED: setRoomId(customId); 
     
     const peer = new Peer(customId, {
-      host: 'speed-project-v2.onrender.com',
-      path: '/myapp',
-      secure: true
-    });
+      host: 'speed-project-v2.onrender.com',
+      path: '/myapp',
+      secure: true
+    });
 
     peer.on('open', (id) => {
-      // Verify our custom ID was accepted, otherwise use what PeerJS gave us
-      if (id !== customId) {
-        console.warn('PeerJS overrode our custom ID:', customId, '-> ', id);
-        setRoomId(id);
-      }
+      // THIS is the only place we should set the Room ID.
+      // 'id' is the official ID confirmed by the server.
+      setRoomId(id);
       setStatus("Connected and ready");
     });
 
