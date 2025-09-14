@@ -37,61 +37,37 @@ export default function App() {
 
     const customId = generateSimpleId();
     
-    // DO NOT set the room ID here. We will wait for the server.
-    // REMOVED: setRoomId(customId); 
+    // Set our custom room ID immediately
+    setRoomId(customId);
     
     const peer = new Peer(customId, {
-      host: 'speed-project-v2.onrender.com',
-      path: '/myapp',
-      secure: true
-    });
+      host: 'speed-project-v2.onrender.com',
+      path: '/myapp',
+      secure: true
+    });
 
     peer.on('open', (id) => {
-      // THIS is the only place we should set the Room ID.
-      // 'id' is the official ID confirmed by the server.
-      setRoomId(id);
+      // Verify our custom ID was accepted, otherwise use what PeerJS gave us
+      if (id !== customId) {
+        console.warn('PeerJS overrode our custom ID:', customId, '-> ', id);
+        setRoomId(id);
+      }
       setStatus("Connected and ready");
     });
 
     peer.on('connection', (conn) => {
       setStatus('Peer connected! Receiving file(s)...');
       setIsTransferring(true);
-      setTransferProgress(0);
-
-      let fileChunks: ArrayBuffer[] = [];
-      let metadata: { name: string, type: string, size: number } | null = null;
-      let receivedSize = 0;
-
+      
       conn.on('data', (data: any) => {
-        if (data.type === 'metadata') {
-          metadata = data.payload;
-          setReceivedFileName(metadata!.name);
-        } else if (data instanceof ArrayBuffer) {
-          fileChunks.push(data);
-          receivedSize += data.byteLength;
-          
-          if (metadata) {
-            const progress = Math.min(Math.round((receivedSize / metadata.size) * 100), 100);
-            setTransferProgress(progress);
-          }
-        } else if (data.type === 'end') {
-          if (!metadata) {
-            setStatus('Error: Received file without metadata.');
-            setIsTransferring(false);
-            return;
-          }
-          const fileBlob = new Blob(fileChunks, { type: metadata.type });
-          setDownloadUrl(URL.createObjectURL(fileBlob));
-          
-          // Reset for next transfer
-          fileChunks = []; 
-          metadata = null;
-          receivedSize = 0;
-
-          setStatus('Files received successfully');
-          setIsTransferring(false);
-          setTransferComplete(true);
-        }
+        const { file, name, type } = data;
+        const blob = new Blob([file as ArrayBuffer], { type: type });
+        setReceivedFileName(name);
+        setDownloadUrl(URL.createObjectURL(blob));
+        setStatus('Files received successfully');
+        setIsTransferring(false);
+        setTransferComplete(true);
+        setTransferProgress(100);
       });
     });
 
@@ -138,10 +114,10 @@ export default function App() {
     }
 
     if (receiverId === roomId) {
-      // This local transfer logic remains the same
       setStatus("Processing local file(s)...");
       setIsTransferring(true);
       
+      // Simulate progress for local transfer
       let progress = 0;
       const interval = setInterval(() => {
         progress += 20;
@@ -170,45 +146,31 @@ export default function App() {
       setStatus(`Sending: ${fileToSend.name}`);
       setIsTransferring(true);
       setTransferProgress(0);
+      
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 10;
+        setTransferProgress(progress);
+        
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+          setStatus('Files sent successfully');
+          setIsTransferring(false);
+        }
+      }, 300);
 
       fileToSend.arrayBuffer().then(buffer => {
-        const CHUNK_SIZE = 64 * 1024; // 64KB chunks
-
-        // 1. Send metadata first
-        conn.send({
-          type: 'metadata',
-          payload: {
-            name: fileToSend.name,
-            type: fileToSend.type,
-            size: buffer.byteLength,
-          }
-        });
-
-        // 2. Send the file in chunks
-        let offset = 0;
-        const sendChunk = () => {
-          if (offset < buffer.byteLength) {
-            const chunk = buffer.slice(offset, offset + CHUNK_SIZE);
-            conn.send(chunk);
-            offset += CHUNK_SIZE;
-            
-            const progress = Math.min(Math.round((offset / buffer.byteLength) * 100), 100);
-            setTransferProgress(progress);
-
-            // Use a small timeout to allow the network to handle the data
-            setTimeout(sendChunk, 5); 
-          } else {
-            // 3. Signal end of transfer
-            conn.send({ type: 'end' });
-            setStatus('Files sent successfully');
-            setIsTransferring(false);
-          }
+        const payload = {
+          file: buffer,
+          name: fileToSend.name,
+          type: fileToSend.type
         };
-        sendChunk();
-
+        conn.send(payload);
       }).catch(err => {
         setStatus(`Error reading file: ${err.message}`);
         setIsTransferring(false);
+        clearInterval(progressInterval);
       });
     });
 
