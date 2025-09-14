@@ -24,6 +24,8 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const peerInstance = useRef<Peer | null>(null);
 
+  const [roomId, setRoomId] = useState<string>('');
+
   useEffect(() => {
     // Generate a shorter, simpler room ID
     const generateSimpleId = () => {
