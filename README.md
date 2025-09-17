@@ -2,7 +2,7 @@
 
 **Speed** is a secure, real-time, peer-to-peer (P2P) file transfer application inspired by the convenience of AirDrop. It enables users to transfer files of any size directly between two computers using only a browser and a unique, short-lived room ID, ensuring complete privacy and lightning-fast transfers.
 
-**Note**: Speed currently supports **PC-to-PC** transfers only. Mobile and cross-device functionality is not yet supported.
+**Note**: Speed currently supports **PC-to-PC** transfers only. Mobile and cross-device functionality is not yet supported. Also, ensure both the sending and recieving computers are on the same WI-FI/network. Cross-network is not supported. 
 
 🔗 **Website link: https://speed-v3.vercel.app**
 
@@ -89,6 +89,7 @@ For questions, feedback, or contributions, please reach out by connecting with m
 
 
 *Built with 💻 by Aditya Chhabria*
+
 
 
 
